@@ -236,82 +236,75 @@ def entry():
     wks1 = spreadsheet.get_worksheet(0)
     # Initialize webcam
     cap = cv2.VideoCapture(0)
-    #cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
+    cap.set(3, 640)
+    cap.set(4, 480)
 
-    # time delay 5 seconds
-    # time.sleep(5)
-    # Capture frame
-    _, frame = cap.read()
-    #cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
-    #cv2.waitKey(5)
-
+    # Set the duration to display the frame (in seconds)
+    display_duration = 5
+    start_time = time.time()
+    while (time.time() - start_time) < display_duration:
+        # Capture frame
+        _, frame = cap.read()
+        cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
+        cv2.waitKey(1)
+    # Close the OpenCV window after the specified duration
     cv2.destroyAllWindows()
-
     # Find QR codes in the frame
     decoded_objects = pyzbar.decode(frame)
+
+    cap.release()
     # Check if any QR codes were found
-    if decoded_objects:
-        data1 = decoded_objects[0].data.decode("utf-8")
-        data = data1.split(',')
-        compare_number = str(data[2])
-        compare_date = str(current_date)
-        rows = wks1.get_all_values() # Attendance sheet
-        rows_2=wks4.get_all_values() # Deactivated sheet
-        rows_3=wks2.get_all_values() # Database Sheet
-        for daa in rows_2:
-            fin=re.findall(daa[2],compare_number)
-            #print(fin)
-        if not fin:
-            #print("Not in fin")
-                #print(daa[2])
-            for row in rows[1:]:
-                #print(row)
-                if row[2] == compare_number and row[4] == compare_date:
-                    print(row[2], row[4])
-                    print("Number and Date matched!")
-                    OUT_TIME = current_time
-                    wks = gc.open("NSDC- Attendance").worksheet("Attendance")
-                    wks1.update_cell(rows.index(row) + 1, 7, OUT_TIME)
-                    wks1.format('A1:G1', {'textFormat': {'bold': True}})
-                    entry_out_label = Label(entry_frame).place(x=0, y=0)
-                    Entry_detail = Label(entry_frame, text="Today Out-Time Entry", bg="white",font=('Timesnewroman', 20, 'bold')).place(x=118, y=40)
-                    name_label = Label(entry_frame, text="Name  : " + data[0], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=100)
-                    number_label = Label(entry_frame, text="E-Mail  : " + data[1], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=140)
-                    mail_label = Label(entry_frame, text="Mobile  : " + data[2], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=180)
-                    emp_labble = Label(entry_frame, text="Emp.Id  :" + data[3], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=220)
-                    date_label = Label(entry_frame, text="Date  : " + current_date, bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=260)
-                    In_label = Label(entry_frame, text="In - Time  : " + row[4], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=300)
-                    Out_label = Label(entry_frame, text="Out - Time  : " + current_time, bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=340)
-                    root.after(5000, back)
-                    break
+    def process_attendance(decoded_objects, current_date, current_time):
+        if decoded_objects:
+            data = decoded_objects[0].data.decode("utf-8").split(',')
+            compare_number = data[2]
+
+            # Check deactivation
+            if not is_deactivated(compare_number):
+                # Check attendance
+                if update_out_time(data, compare_number, current_date, current_time):
+                    entry_type = "Out-Time Entry"
                 else:
-                    print(row[2], row[4])
-                    print("Number and Date not matched!")
-                    # store the qr values and in-time
-                    wks = gc.open("NSDC- Attendance").worksheet("Attendance")
-                    #  Append Data from qr code
-                    wks1.append_row([data[0], data[1], data[2], data[3], current_date, current_time])
-                    wks1.format('A1:G1', {'textFormat': {'bold': True}})
-                    entry_out_label = Label(entry_frame, ).place(x=0, y=0)
-                    Entry_detail = Label(entry_frame, text="Today In-Time Entry", bg="white",font=('Timesnewroman', 20, 'bold')).place(x=118, y=40)
-                    name_label = Label(entry_frame, text="Name  : " + data[0], bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=100)
-                    number_label = Label(entry_frame, text="Mobile number  : " + data[1], bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=140)
-                    mail_label = Label(entry_frame, text="E-Mail  : " + data[2], bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=180)
-                    emp_labble = Label(entry_frame, text="Emp.Id  :" + data[3], bg="white", font=('Timesnewroman', 12, 'bold')).place(x=40, y=220)
-                    date_label = Label(entry_frame, text="Date  : " + current_date, bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=260)
-                    In_label = Label(entry_frame, text="In - Time  : " + current_time, bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=300)
-                    root.after(5000, back)
-                break
+                    add_attendance_entry(data, current_date, current_time, "In-Time Entry")
+                    entry_type = "In-Time Entry"
+
+                #display_attendance_info(data, current_date, current_time, entry_type)
+                root.after(5000, back)
+            else:
+                msg = f'{data[0]} Your ID is De-Activated\nKindly contact admin'
+                showinfo(title='Information', message=msg)
+                back()
         else:
-            msg = f'{daa[0]} Your Id is De-Activated \n Kindly contact admin'
-            showinfo(title='Information', message=msg)
             back()
 
-    else:
-        a = back()
+    def is_deactivated(compare_number):
+        rows_2 = wks4.get_all_values()
+        return any(compare_number == daa[2] for daa in rows_2)
+
+    def update_out_time(data, compare_number, current_date, current_time):
+        rows = wks1.get_all_values()
+        for row in rows[1:]:
+            if row[2] == compare_number and row[4] == current_date:
+                wks1.update_cell(rows.index(row) + 1, 7, current_time)
+                msg = (f'\t\tOut-time Entry \n Name : \t\t{data[0]} \n Mobile Number : \t{data[1]} \n E-Mail Id : \t{data[2]} \n '
+                       f'Emp. Id : \t{data[3]} \n Date : \t\t{current_date} \n In-Time : \t{row[5]} \n Out-Time : \t{current_time}')
+                showinfo(title='Information', message=msg)
+                back()
+                return True
+        return False
+
+    def add_attendance_entry(data, current_date, current_time, entry_type):
+        wks1.append_row([data[0], data[1], data[2], data[3], current_date, current_time])
+        entry_out_label = Label(entry_frame, ).place(x=0, y=0)
+        msg = (f'\t\tIntime Entry \n Name : \t\t{data[0]} \n Mobile Number : \t{data[1]} \n E-Mail Id : \t{data[2]} \n '
+               f'Emp. Id : \t{data[3]} \n Date : \t\t{current_date} \n In-Time : \t{current_time}')
+        showinfo(title='Information', message=msg)
+        back()
+
+    process_attendance(decoded_objects, current_date, current_time)
 
     # Release webcam
-    cap.release()
+
 
 # password enter button function
 def enter():
