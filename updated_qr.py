@@ -8,6 +8,11 @@ from tkinter import *
 #from tkinter import filedialog
 #from tkinter.filedialog import askopenfile
 from PIL import ImageTk, Image
+#------------------
+from tkinter import Tk, Frame
+from PIL import Image, ImageTk
+
+#------------------
 import qrcode
 import cv2
 from pyzbar import pyzbar
@@ -36,8 +41,9 @@ frame_1 = Frame(root, width=450, height=560, bg="white")
 frame_1.place(x=0, y=0)
 icon = Image.open('test.png')
 photo = ImageTk.PhotoImage(icon)
-root.wm_iconphoto(False, photo) #This line is used to change the icon
-#root.iconbitmap('test.png')
+#This line is used to change the icon
+root.wm_iconphoto(False, photo)
+#winico.replace_icon('test.ico')
 
 #Impoting the  images
 inphase_logo = ImageTk.PhotoImage(Image.open("test.png"))
@@ -359,43 +365,34 @@ def search():
     av_btn = Button(remo_frame_2, text="Activate", bg="white", command=lambda: activate(row_values,ch_num)).place(x=300, y=380)
     return ch_num
 
-# Activate button function
+# -------------------------------Activate button function starts------------------------------#
 def activate(row_values, ch_num):
     # Open the workbook and the "Deactivated" worksheet
     workbook = gc.open("NSDC- Attendance")
     deactivated_sheet = workbook.worksheet("Deactivated")
-
     # Get all records from the "Deactivated" worksheet
     data = deactivated_sheet.get_all_records()
-
     # Convert the data to a pandas DataFrame
     df = pd.DataFrame(data)
-
     # Ensure 'Mobile Number' column is treated as string
     df['Mobile Number'] = df['Mobile Number'].astype(str)
-
     # Convert ch_num to string
     ch_num = str(ch_num)
-
     # Find the rows that match the given mobile number
     search_results = df[df['Mobile Number'].str.contains(ch_num)]
-
     # Get the indices of the rows to delete
     indices_to_delete = search_results.index
-
     # Sort the indices in descending order
     indices_to_delete = sorted(indices_to_delete, reverse=True)
-
     # Delete the rows from the Google Sheets workbook using delete_rows
     for index in indices_to_delete:
         deactivated_sheet.delete_rows(index + 2)
-
     msg_1 = f'{row_values[0]}, is activated!'
     showinfo(title='Information', message=msg_1)
     back_1()
+# -------------------------------Activate button function ends------------------------------#
 
-
-# De-Activate button function
+#-------------------------------De-Activate button function starts -------------------------------#
 def deactivate(row_values):
     wks3 = gc.open("NSDC- Attendance").worksheet("Deactivated")
     wks3.append_row([row_values[0], row_values[1], row_values[2], row_values[3], current_date, current_time])
@@ -403,7 +400,9 @@ def deactivate(row_values):
     msg_1 = f'{row_values[0]},is deactivated !'
     showinfo(title='Information', message=msg_1)
     back_1()
-# Log-Out button function
+# -------------------------------De-Activate button function ends------------------------------#
+
+#---------------------------------Log-Out button function starts-------------------------------#
 def logout():
     msg_1 = f'Logut Successfull \n Thank you '
     showinfo(title='Information', message=msg_1)

@@ -1,12 +1,11 @@
 # Libraries for this project
+import PySimpleGUI as sg
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 from tkinter import *
-#from tkinter import filedialog
-#from tkinter.filedialog import askopenfile
 from PIL import ImageTk, Image
 import qrcode
 import cv2
@@ -18,7 +17,7 @@ import pandas as pd
 import gspread
 from tkinter.messagebox import showinfo
 import numpy as np
-#Generating pdf
+#----------Library files for Generating pdf------------------#
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -27,17 +26,17 @@ from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
 import re
 
-# Creating the window
+#-----------------------------------Creating the window-------------------------#
 root = Tk()
 root.title("Inphase Power Technologies")
 root.geometry("450x560")
 root.resizable(False,False)
 frame_1 = Frame(root, width=450, height=560, bg="white")
 frame_1.place(x=0, y=0)
-icon = Image.open('test.png')
+icon = Image.open('pk.ico')
 photo = ImageTk.PhotoImage(icon)
 root.wm_iconphoto(False, photo) #This line is used to change the icon
-#root.iconbitmap('test.png')
+root.iconbitmap('pk.ico')
 
 #Impoting the  images
 inphase_logo = ImageTk.PhotoImage(Image.open("test.png"))
