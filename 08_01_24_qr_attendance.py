@@ -236,14 +236,15 @@ def entry():
     wks1 = spreadsheet.get_worksheet(0)
     # Initialize webcam
     cap = cv2.VideoCapture(0)
-    cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
+    #cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
 
     # time delay 5 seconds
     # time.sleep(5)
     # Capture frame
     _, frame = cap.read()
-    cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
+    #cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
     #cv2.waitKey(5)
+
     cv2.destroyAllWindows()
 
     # Find QR codes in the frame
@@ -259,13 +260,18 @@ def entry():
         rows_3=wks2.get_all_values() # Database Sheet
         for daa in rows_2:
             fin=re.findall(daa[2],compare_number)
+            print(fin)
         if not fin:
+            print("Not in fin")
                 #print(daa[2])
             for row in rows[1:]:
                 print(row)
                 if row[2] == compare_number and row[4] == compare_date:
+                    print("Number and Date matched!")
                     OUT_TIME = current_time
+                    wks = gc.open("NSDC- Attendance").worksheet("Attendance")
                     wks1.update_cell(rows.index(row) + 1, 7, OUT_TIME)
+                    wks1.format('A1:G1', {'textFormat': {'bold': True}})
                     entry_out_label = Label(entry_frame).place(x=0, y=0)
                     Entry_detail = Label(entry_frame, text="Today Out-Time Entry", bg="white",font=('Timesnewroman', 20, 'bold')).place(x=118, y=40)
                     name_label = Label(entry_frame, text="Name  : " + data[0], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=100)
@@ -275,9 +281,11 @@ def entry():
                     date_label = Label(entry_frame, text="Date  : " + current_date, bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=260)
                     In_label = Label(entry_frame, text="In - Time  : " + row[4], bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=300)
                     Out_label = Label(entry_frame, text="Out - Time  : " + current_time, bg="white",font=('Timesnewroman', 14, 'bold')).place(x=40, y=340)
-                    root.after(10000, back)
+                    root.after(5000, back)
                     break
                 else:
+
+                    print("Number and Date not matched!")
                     # store the qr values and in-time
                     wks = gc.open("NSDC- Attendance").worksheet("Attendance")
                     #  Append Data from qr code
@@ -291,12 +299,13 @@ def entry():
                     emp_labble = Label(entry_frame, text="Emp.Id  :" + data[3], bg="white", font=('Timesnewroman', 12, 'bold')).place(x=40, y=220)
                     date_label = Label(entry_frame, text="Date  : " + current_date, bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=260)
                     In_label = Label(entry_frame, text="In - Time  : " + current_time, bg="white",font=('Timesnewroman', 12, 'bold')).place(x=40, y=300)
-                    root.after(10000, back)
+                    root.after(5000, back)
                 break
         else:
-            msg = f'Your Id is De-Activated \n Kindly contact admin {daa[0]}'
+            msg = f'{daa[0]} Your Id is De-Activated \n Kindly contact admin'
             showinfo(title='Information', message=msg)
             back()
+
     else:
         a = back()
 
@@ -361,26 +370,37 @@ def activate(row_values, ch_num):
     # Open the workbook and the "Deactivated" worksheet
     workbook = gc.open("NSDC- Attendance")
     deactivated_sheet = workbook.worksheet("Deactivated")
+
     # Get all records from the "Deactivated" worksheet
     data = deactivated_sheet.get_all_records()
+
     # Convert the data to a pandas DataFrame
     df = pd.DataFrame(data)
+
     # Ensure 'Mobile Number' column is treated as string
     df['Mobile Number'] = df['Mobile Number'].astype(str)
+
     # Convert ch_num to string
     ch_num = str(ch_num)
+
     # Find the rows that match the given mobile number
     search_results = df[df['Mobile Number'].str.contains(ch_num)]
+
     # Get the indices of the rows to delete
     indices_to_delete = search_results.index
+
     # Sort the indices in descending order
     indices_to_delete = sorted(indices_to_delete, reverse=True)
-    # Delete the rows from the Google Sheets workbook
+
+    # Delete the rows from the Google Sheets workbook using delete_rows
     for index in indices_to_delete:
-         deactivated_sheet.delete_row(index + 2)
+        deactivated_sheet.delete_rows(index + 2)
+
     msg_1 = f'{row_values[0]}, is activated!'
     showinfo(title='Information', message=msg_1)
     back_1()
+
+
 # De-Activate button function
 def deactivate(row_values):
     wks3 = gc.open("NSDC- Attendance").worksheet("Deactivated")
