@@ -1,5 +1,6 @@
 # Libraries for this project
 import PySimpleGUI as sg
+import re
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -24,7 +25,6 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as ReportLabImage, Spacer, Paragraph
 from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
-import re
 
 #-----------------------------------Creating the window-------------------------#
 root = Tk()
@@ -45,7 +45,7 @@ inphase_logo = ImageTk.PhotoImage(Image.open("test.png"))
 inphase_lable=Label(frame_1,image=inphase_logo,bg="White").place(x=100,y=20)
 
 
-# ------------------------------------------------- Open Google spread sheet ---------------------------------------
+# ------------------------------------------------- Open Google spread sheet ---------------------------------------#
 gc = gspread.service_account(filename='nsdc.json')
 spreadsheet = gc.open("NSDC- Attendance")
 wks1 = spreadsheet.get_worksheet(0)
@@ -54,14 +54,14 @@ wks3 = spreadsheet.get_worksheet(2)
 wks4 = spreadsheet.get_worksheet(3)
 
 
-# ------------------------------------------------- Current date and time -------------------------
+# ------------------------------------------------- Current date and time -------------------------#
 # Get the current date and time
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 current_date = now.strftime("%Y-%m-%d")
 
 
-#button functions
+#---------------------------Admin login button function starts---------------------------#
 def admin_log():
     global pass_frame
     pass_frame = Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
@@ -74,8 +74,9 @@ def admin_log():
     pass_entry = Entry(pass_frame_2, show="*", textvariable=l2, font=('Timesnewroman', 11, "")).place(x=200, y=263)
     ent_btn = Button(pass_frame_2, text="Login",bg="White", command=enter, relief=RIDGE).place(x=188, y=320)
     back_btn = Button(pass_frame_2, text="Back",command=back, bg="White", relief=RIDGE).place(x=278, y=320)
+#---------------------------Admin login button function ends---------------------------#
 
-# New register button function
+#---------------------------------New register button function starts-------------------#
 def new_register():
     reg_frame= Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
     reg_frame_2 = Frame(reg_frame, width=450, height=560, bg="white").place(x=0, y=0)
@@ -97,7 +98,9 @@ def new_register():
     create_btn= Button(reg_frame_2, text="Create", command=create, bg="white", relief=RIDGE).place(x=240, y=381)
     back_btn = Button(reg_frame_2, text="Back", command=back_1, bg="White", relief=RIDGE).place(x=290, y=381)
 
-# Create button function
+#---------------------------------New register button function ends-------------------#
+
+#----------------------------------Create button function starts------------------------#
 def create():
     global wks2
     #collecting the input
@@ -156,6 +159,7 @@ def create():
 
     # Add the table to the elements
     elements.append(table)
+    # text_content for generating pdf
     text_content = (f'On behalf of Inphase, I am extremely excited to share with '
                     f'you the offer letter for the role of R&D Engineer. Your passion and skills '
                     f'are the perfect fit for the company. You will be a part of the team starting '
@@ -220,10 +224,10 @@ def create():
     l5.set("")
     l6.set("")
     new_register()
-    #create_btn = Button(reg_frame_2, text="Create", command=create, bg="white", relief=RIDGE).place(x=240, y=381)
-    #back_btn = Button(reg_frame_2, text="Back", command=back, bg="White", relief=RIDGE).place(x=290, y=381)
 
-# User entry button function
+#---------------------------------New register button function ends-------------------#
+
+#----------------------------------User entry button function starts--------------------#
 def entry():
     entry_frame = Frame(frame_1, width=450, height=560, bg="White")
     entry_frame.place(x=0, y=0)
@@ -233,21 +237,15 @@ def entry():
     gc = gspread.service_account('nsdc.json')
     spreadsheet = gc.open("NSDC- Attendance")
     wks1 = spreadsheet.get_worksheet(0)
+
     # Initialize webcam
     cap = cv2.VideoCapture(0)
-    #cv2.namedWindow("Camera Feed", cv2.WINDOW_NORMAL)
-
-    # time delay 5 seconds
-    # time.sleep(5)
-    # Capture frame
     _, frame = cap.read()
-    #cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
-    #cv2.waitKey(5)
-
     cv2.destroyAllWindows()
 
     # Find QR codes in the frame
     decoded_objects = pyzbar.decode(frame)
+
     # Check if any QR codes were found
     if decoded_objects:
         data1 = decoded_objects[0].data.decode("utf-8")
@@ -259,12 +257,11 @@ def entry():
         rows_3=wks2.get_all_values() # Database Sheet
         for daa in rows_2:
             fin=re.findall(daa[2],compare_number)
-            #print(fin)
+
         if not fin:
-            #print("Not in fin")
-                #print(daa[2])
+
             for row in rows[1:]:
-                #print(row)
+
                 if row[2] == compare_number and row[4] == compare_date:
                     print(row[2], row[4])
                     print("Number and Date matched!")
@@ -284,8 +281,7 @@ def entry():
                     root.after(5000, back)
                     break
                 else:
-                    print(row[2], row[4])
-                    print("Number and Date not matched!")
+
                     # store the qr values and in-time
                     wks = gc.open("NSDC- Attendance").worksheet("Attendance")
                     #  Append Data from qr code
@@ -311,8 +307,9 @@ def entry():
 
     # Release webcam
     cap.release()
+#---------------------------------User entry button function ends-------------------#
 
-# password enter button function
+#----------------------------------Admin password enter button function starts------------------------#
 def enter():
     global enter
     user_1=l.get()
@@ -338,7 +335,9 @@ def enter():
         msg = f'Login failed! \n Enter the valid user name and password'
         showinfo(title='Information', message=msg)
 
-# User access button function
+#---------------------------------Admin password enter button function ends-------------------#
+
+#------------------------------------User access button function starts-------------------------#
 def remo():
     global remo_frame_2
     remo_frame = Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
@@ -350,7 +349,9 @@ def remo():
     ser_btn= Button(remo_frame_2, text="Search", command=search,bg="white", font=('Timesnewroman', 10 ,'bold')).place(x=170,y=270)
     ba_btn= Button(remo_frame_2, text="Back", command=back_1,bg="white", font=('Timesnewroman', 10 ,'bold')).place(x=240,y=270)
 
-# Search button
+#---------------------------------user access button function ends-------------------#
+
+#--------------------------------------Search button function starts-------------------------#
 def search():
     global search
     ch_num = l7.get()
@@ -365,7 +366,9 @@ def search():
     av_btn = Button(remo_frame_2, text="Activate", bg="white", command=lambda: activate(row_values,ch_num)).place(x=300, y=380)
     return ch_num
 
-# Activate button function
+#---------------------------------Search button function ends--------------------------------#
+
+#-----------------------------------Activate button function starts-----------------------------#
 def activate(row_values, ch_num):
     # Open the workbook and the "Deactivated" worksheet
     workbook = gc.open("NSDC- Attendance")
@@ -400,8 +403,9 @@ def activate(row_values, ch_num):
     showinfo(title='Information', message=msg_1)
     back_1()
 
+#---------------------------------Activate button function ends----------------------------#
 
-# De-Activate button function
+#------------------------------------De-Activate button function starts--------------------------#
 def deactivate(row_values):
     wks3 = gc.open("NSDC- Attendance").worksheet("Deactivated")
     wks3.append_row([row_values[0], row_values[1], row_values[2], row_values[3], current_date, current_time])
@@ -409,12 +413,16 @@ def deactivate(row_values):
     msg_1 = f'{row_values[0]},is deactivated !'
     showinfo(title='Information', message=msg_1)
     back_1()
-# Log-Out button function
+
+#---------------------------------De-Activate button function ends-------------------#
+
+#--------------------------------Log-Out button function starts------------------------#
 def logout():
     msg_1 = f'Logut Successfull \n Thank you '
     showinfo(title='Information', message=msg_1)
     back()
 
+#---------------------------------Logout button function ends-------------------#
 p = ""
 l = StringVar()
 l2 = StringVar()
@@ -424,7 +432,7 @@ l5 = StringVar()
 l6 = StringVar()
 l7 = StringVar()
 
-# Back button function with logout
+#---------------------------------------Back button function for home page starts----------------------#
 def back():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
@@ -432,7 +440,9 @@ def back():
     register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="disabled").place(x=180, y=250)
     entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
 
-# Back button function without log out
+#---------------------------------------Back button function for home page ends----------------------#
+
+#---------------------------------------Back button function without log out starts------------------------#
 def back_1():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
@@ -441,13 +451,19 @@ def back_1():
     entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
     logout_btn = Button(frame_1, text="Logout", command=logout, bg="White", relief=RIDGE).place(x=180, y=350)
     de_user = Button(frame_1, text="User Access", command=remo, bg="white", relief=RIDGE).place(x=180, y=400)
+
+#---------------------------------------Back button function without log out starts------------------------#
+
+#------------------------getting message from the folder----------------------#
 base2=open(r"message.txt")
 read_2=base2.read()
 a2=read_2.split(',')
+#------------------------getting message from the folder----------------------#
 
-# creating buttons
+#-----------------------creating buttons for home screen----------------#
 Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
 register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="disabled").place(x=180, y=250)
 entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
-# CLosed the window loop
+
+#--------------------------------CLosed the window loop-----------------------------------#
 root.mainloop()
