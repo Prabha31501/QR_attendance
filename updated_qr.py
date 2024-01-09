@@ -1,29 +1,33 @@
 # Libraries for this project
+#-----------------Sending email--------------#
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
+#-----------Creating window application-----------#
 from tkinter import *
 #from tkinter import filedialog
 #from tkinter.filedialog import askopenfile
+#----------------Adding image in the application--------------#
 from PIL import ImageTk, Image
-#------------------
 from tkinter import Tk, Frame
-from PIL import Image, ImageTk
-
-#------------------
+#-------------Generating QR code-----------------------#
 import qrcode
-import cv2
 from pyzbar import pyzbar
 from pyzbar.pyzbar import decode
+#------------------Open camera-------------------#
+import cv2
+#--------------------Date and time-----------------#
 from datetime import datetime
 import time
 import pandas as pd
+#_------------------Google spread sheet----------------#
 import gspread
+#-----------Message pop-up----------------#
 from tkinter.messagebox import showinfo
 import numpy as np
-#Generating pdf
+#----------Library files for Generating pdf------------------#
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -32,27 +36,27 @@ from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
 import re
 
-# Creating the window
+#-----------------------Creating the window---------------------------#
 root = Tk()
 root.title("Inphase Power Technologies")
 root.geometry("450x560")
 root.resizable(False,False)
 frame_1 = Frame(root, width=450, height=560, bg="white")
 frame_1.place(x=0, y=0)
-icon = Image.open('test.png')
+icon = Image.open('pk.ico')
 photo = ImageTk.PhotoImage(icon)
-#This line is used to change the icon
-root.wm_iconphoto(False, photo)
-#winico.replace_icon('test.ico')
 
-#Impoting the  images
+#--------------This line is used to change the icon------------------------#
+root.wm_iconphoto(False, photo)
+root.iconbitmap('pk.ico')
+
+#Impoting the  image of inphase
 inphase_logo = ImageTk.PhotoImage(Image.open("test.png"))
 
 #Inphase logo attached
 inphase_lable=Label(frame_1,image=inphase_logo,bg="White").place(x=100,y=20)
 
-
-# ------------------------------------------------- Open Google spread sheet ---------------------------------------
+# ------------------------------------ Open Google spread sheet ------------------------#
 gc = gspread.service_account(filename='nsdc.json')
 spreadsheet = gc.open("NSDC- Attendance")
 wks1 = spreadsheet.get_worksheet(0)
@@ -60,15 +64,13 @@ wks2 = spreadsheet.get_worksheet(1)
 wks3 = spreadsheet.get_worksheet(2)
 wks4 = spreadsheet.get_worksheet(3)
 
-
-# ------------------------------------------------- Current date and time -------------------------
+#------------------------------------- Current date and time -------------------------#
 # Get the current date and time
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 current_date = now.strftime("%Y-%m-%d")
 
-
-#button functions
+#------------------Admin login button functions starts------------------#
 def admin_log():
     global pass_frame
     pass_frame = Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
@@ -82,7 +84,9 @@ def admin_log():
     ent_btn = Button(pass_frame_2, text="Login",bg="White", command=enter, relief=RIDGE).place(x=188, y=320)
     back_btn = Button(pass_frame_2, text="Back",command=back, bg="White", relief=RIDGE).place(x=278, y=320)
 
-# New register button function
+#------------------------------------Admin login button function ends-------------------------#
+
+#-----------------------------------New register button function starts----------------------#
 def new_register():
     reg_frame= Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
     reg_frame_2 = Frame(reg_frame, width=450, height=560, bg="white").place(x=0, y=0)
@@ -103,8 +107,9 @@ def new_register():
 
     create_btn= Button(reg_frame_2, text="Create", command=create, bg="white", relief=RIDGE).place(x=240, y=381)
     back_btn = Button(reg_frame_2, text="Back", command=back_1, bg="White", relief=RIDGE).place(x=290, y=381)
+#---------------------------------New register button function ends----------------------#
 
-# Create button function
+#----------------------------------Create button function starts------------------------#
 def create():
     global wks2
     #collecting the input
@@ -182,7 +187,8 @@ def create():
 
     doc.build(elements)
 
-    # ------------------------------------------------- Store new registered data in Gsheet ------------------
+
+    #------------------------------- Store new registered data in Gsheet --------------------------#
     wks2 = gc.open("NSDC- Attendance").worksheet("Database")
     wks2.append_row([text, text2, text3,text4, current_date, current_time])
     wks2.format('A1:F1', {'textFormat': {'bold': True}})
@@ -227,10 +233,10 @@ def create():
     l5.set("")
     l6.set("")
     new_register()
-    #create_btn = Button(reg_frame_2, text="Create", command=create, bg="white", relief=RIDGE).place(x=240, y=381)
-    #back_btn = Button(reg_frame_2, text="Back", command=back, bg="White", relief=RIDGE).place(x=290, y=381)
 
-# User entry button function
+#------------------------Create button function ends------------------------#
+
+#----------------------------User entry button function starts------------------#
 def entry():
     entry_frame = Frame(frame_1, width=450, height=560, bg="White")
     entry_frame.place(x=0, y=0)
@@ -257,7 +263,7 @@ def entry():
     cv2.destroyAllWindows()
     # Find QR codes in the frame
     decoded_objects = pyzbar.decode(frame)
-
+    # Release webcam
     cap.release()
     # Check if any QR codes were found
     def process_attendance(decoded_objects, current_date, current_time):
@@ -266,7 +272,7 @@ def entry():
             compare_number = data[2]
 
             # Check deactivation
-            if not is_deactivated(compare_number):
+            if not deactivated(compare_number):
                 # Check attendance
                 if update_out_time(data, compare_number, current_date, current_time):
                     entry_type = "Out-Time Entry"
@@ -283,7 +289,7 @@ def entry():
         else:
             back()
 
-    def is_deactivated(compare_number):
+    def deactivated(compare_number):
         rows_2 = wks4.get_all_values()
         return any(compare_number == daa[2] for daa in rows_2)
 
@@ -308,11 +314,9 @@ def entry():
         back()
 
     process_attendance(decoded_objects, current_date, current_time)
+#----------------------Entry button function ends------------------#
 
-    # Release webcam
-
-
-# password enter button function
+#-----------------------------password enter button function starts---------------------#
 def enter():
     global enter
     user_1=l.get()
@@ -337,8 +341,9 @@ def enter():
     else:
         msg = f'Login failed! \n Enter the valid user name and password'
         showinfo(title='Information', message=msg)
+#------------------------Password enter button function ends-----------------------#
 
-# User access button function
+#------------------------------User access button function starts--------------------------#
 def remo():
     global remo_frame_2
     remo_frame = Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
@@ -349,8 +354,9 @@ def remo():
     ent_1= Entry(remo_frame_2, text="Number", textvariable=l7, bg="white", font=('Timesnewroman',10,'bold')).place(x=170, y=221)
     ser_btn= Button(remo_frame_2, text="Search", command=search,bg="white", font=('Timesnewroman', 10 ,'bold')).place(x=170,y=270)
     ba_btn= Button(remo_frame_2, text="Back", command=back_1,bg="white", font=('Timesnewroman', 10 ,'bold')).place(x=240,y=270)
+#------------------------------User access button function ends--------------------------#
 
-# Search button
+#------------------------------------Search button function starts-----------------#
 def search():
     global search
     ch_num = l7.get()
