@@ -1,7 +1,7 @@
 # Libraries for this project
-#-----------------Sending email--------------#
 import smtplib
 from email.mime.multipart import MIMEMultipart
+#-----------------Sending email--------------#
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
@@ -35,6 +35,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as Re
 from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
 import re
+import PySimpleGUI as sg
 
 #-----------------------Creating the window---------------------------#
 root = Tk()
@@ -107,11 +108,13 @@ def new_register():
 
     create_btn= Button(reg_frame_2, text="Create", command=create, bg="white", relief=RIDGE).place(x=240, y=381)
     back_btn = Button(reg_frame_2, text="Back", command=back_1, bg="White", relief=RIDGE).place(x=290, y=381)
+
 #---------------------------------New register button function ends----------------------#
 
 #----------------------------------Create button function starts------------------------#
 def create():
     global wks2
+
     #collecting the input
     text = l3.get()
     text2 = l4.get()
@@ -225,14 +228,16 @@ def create():
     s.login('nsdccourse@gmail.com', 'zcsn voxd zxod aabf')
     s.sendmail('nsdccourse@gmail.com', msg['To'], msg.as_string())
     s.quit()
-    msg = f'QR code Sent Successfull to Registered Email \n Check the inbox {text2}'
-    showinfo(title='Information', message=msg)
+    #msg = f'QR code Sent Successfull to Registered Email \n Check the inbox {text2}'
+    #showinfo(title='Information', message=msg)
 
     l3.set("")
     l4.set("")
     l5.set("")
     l6.set("")
-    new_register()
+    Label(text="QR code generated and send through email",  bg="green", font=('Timesnewroman', 14, 'bold')).place(x=10,y=450)
+    #time.sleep(1000)
+    #new_register()
 
 #------------------------Create button function ends------------------------#
 
@@ -240,6 +245,7 @@ def create():
 def entry():
     entry_frame = Frame(frame_1, width=450, height=560, bg="White")
     entry_frame.place(x=0, y=0)
+    Label(frame_1, text="Please show your QR code on the camera!!!", bg="green", font=('Timesnewroman', 14, 'bold')).place(x=10, y=400)
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_date = now.strftime("%Y-%m-%d")
@@ -252,13 +258,18 @@ def entry():
     cap.set(4, 480)
 
     # Set the duration to display the frame (in seconds)
-    display_duration = 5
+    display_duration = 10
     start_time = time.time()
+    #def snap():
+        #pass
     while (time.time() - start_time) < display_duration:
         # Capture frame
         _, frame = cap.read()
         cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
+        #Button(cv2.imshow,text="Capture",command=snap, bg="green", font=('Timesnewroman', 14, 'bold')).pack()
         cv2.waitKey(1)
+
+
     # Close the OpenCV window after the specified duration
     cv2.destroyAllWindows()
     # Find QR codes in the frame
@@ -333,11 +344,11 @@ def enter():
 
         frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
         inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
-        Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-        register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="normal").place(x=180, y=250)
-        entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
-        logout_btn= Button(frame_1, text="Logout", command=logout,bg="White", relief=RIDGE).place(x=180, y=350)
-        de_user= Button(frame_1, text="User Access", command=remo,bg="white", relief=RIDGE).place(x=180, y=400)
+        #Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
+        register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE).place(x=180, y=200)
+        entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=250)
+        logout_btn= Button(frame_1, text="Logout", command=logout,bg="White", relief=RIDGE).place(x=180, y=300)
+        de_user= Button(frame_1, text="User Access", command=remo,bg="white", relief=RIDGE).place(x=180, y=350)
     else:
         msg = f'Login failed! \n Enter the valid user name and password'
         showinfo(title='Information', message=msg)
@@ -427,16 +438,17 @@ l7 = StringVar()
 def back():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
-    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-    register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="disabled").place(x=180, y=250)
-    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
+    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=380, y=80)
+    #register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="disabled").place(x=180, y=250)
+    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=200)
+
 
 # Back button function without log out
 def back_1():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
-    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-    register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="normal").place(x=180, y=250)
+    #Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
+    register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE).place(x=180, y=250)
     entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
     logout_btn = Button(frame_1, text="Logout", command=logout, bg="White", relief=RIDGE).place(x=180, y=350)
     de_user = Button(frame_1, text="User Access", command=remo, bg="white", relief=RIDGE).place(x=180, y=400)
@@ -445,10 +457,9 @@ read_2=base2.read()
 a2=read_2.split(',')
 
 # creating buttons
-Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="disabled").place(x=180, y=250)
-entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
+Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=370, y=80)
+#register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="disabled").place(x=180, y=250)
+entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=200)
 # CLosed the window loop
 root.mainloop()
 
-#demo for praba - 9-Jan-2024
