@@ -450,3 +450,5 @@ register_btn = Button(frame_1, text="Register", command=new_register, bg="White"
 entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
 # CLosed the window loop
 root.mainloop()
+
+#demo for praba - 9-Jan-2024
