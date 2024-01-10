@@ -28,13 +28,14 @@ import gspread
 from tkinter.messagebox import showinfo
 import numpy as np
 #----------Library files for Generating pdf------------------#
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as ReportLabImage, Spacer, Paragraph
 from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
 import re
+import PySimpleGUI as sg
 
 #-----------------------Creating the window---------------------------#
 root = Tk()
@@ -140,6 +141,9 @@ def create():
     # Set up PDF document
     file_path_pdf = text + ".pdf"
     doc = SimpleDocTemplate(file_path_pdf, pagesize=A4)
+    doc = SimpleDocTemplate(file_path_pdf, pagesize=landscape(A4))
+    doc = SimpleDocTemplate(file_path_pdf, pagesize=A4)
+
     # Build the PDF document
     elements = []
 
@@ -225,14 +229,14 @@ def create():
     s.login('nsdccourse@gmail.com', 'zcsn voxd zxod aabf')
     s.sendmail('nsdccourse@gmail.com', msg['To'], msg.as_string())
     s.quit()
-    msg = f'QR code Sent Successfull to Registered Email \n Check the inbox {text2}'
-    showinfo(title='Information', message=msg)
-
+    #msg = f'QR code Sent Successfull to Registered Email \n Check the inbox {text2}'
+    #showinfo(title='Information', message=msg)
+    Label(text="QR code generated and send through email",  bg="green", font=('Timesnewroman', 14, 'bold')).place(x=10,y=450)
     l3.set("")
     l4.set("")
     l5.set("")
     l6.set("")
-    new_register()
+    #new_register()
 
 #------------------------Create button function ends------------------------#
 
@@ -240,37 +244,91 @@ def create():
 def entry():
     entry_frame = Frame(frame_1, width=450, height=560, bg="White")
     entry_frame.place(x=0, y=0)
+    label = Label(entry_frame, text="Press 'Snap' to capture a snapshot.")
+    label.pack()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_date = now.strftime("%Y-%m-%d")
     gc = gspread.service_account('nsdc.json')
     spreadsheet = gc.open("NSDC- Attendance")
     wks1 = spreadsheet.get_worksheet(0)
-    # Initialize webcam
-    cap = cv2.VideoCapture(0)
-    cap.set(3, 640)
-    cap.set(4, 480)
 
-    # Set the duration to display the frame (in seconds)
-    display_duration = 5
-    start_time = time.time()
-    while (time.time() - start_time) < display_duration:
-        # Capture frame
-        _, frame = cap.read()
-        cv2.imshow("Camera Feed", frame)  # Display the frame in the "Camera Feed" window
-        cv2.waitKey(1)
-    # Close the OpenCV window after the specified duration
-    cv2.destroyAllWindows()
-    # Find QR codes in the frame
-    decoded_objects = pyzbar.decode(frame)
-    # Release webcam
-    cap.release()
+    snapshot = None
+    snap_button_pressed = False
+
+    # import cv2
+    # import time
+    # from pyzbar.pyzbar import decode
+
+    snapshot = None
+    snap_button_pressed = False
+
+    def on_mouse(event, x, y, flags, param):
+        global snapshot, snap_button_pressed
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # Check if the click is within the Snap button region
+            if 500 <= x <= 600 and 20 <= y <= 70:
+                snap_button_pressed = True
+                #print("Snap button pressed!")
+    def trace_qr_code():
+        global snapshot, snap_button_pressed
+        # Open the default camera (index 0)
+        cap = cv2.VideoCapture(0)
+        # Wait for 5 seconds before starting QR code scanning
+        time.sleep(5)
+        # Create the main window
+        cv2.namedWindow("Traced QR Code")
+        snap_button_pressed = False  # Initialize snap_button_pressed
+
+        while True:
+            # Read a frame from the webcam
+            ret, frame = cap.read()
+            # Convert the frame to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # Display the Snap button
+            cv2.rectangle(frame, (500, 20), (600, 70), (255, 255, 255), -1)
+            cv2.putText(frame, "Snap", (530, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2, cv2.LINE_AA)
+            # Check for mouse events
+            cv2.setMouseCallback("Traced QR Code", on_mouse)
+            # Capture a snapshot if the Snap button is pressed
+            if snap_button_pressed:
+                snapshot = frame.copy()
+                # Decode QR codes in the snapshot
+                qr_codes = decode(cv2.cvtColor(snapshot, cv2.COLOR_BGR2GRAY))
+                # Iterate through detected QR codes
+                for qr_code in qr_codes:
+                    rect = qr_code.rect
+                    # Extract the coordinates of the bounding box
+                    x, y, w, h = rect.left, rect.top, rect.width, rect.height
+                    # Draw the bounding box
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    # Extract and print QR code data
+                    data_1 = qr_code.data.decode('utf-8')
+                    # Close the window after decoding the QR code
+                    cv2.destroyAllWindows()
+                    cap.release()
+                    return data_1 # Exit the function immediately
+
+                snap_button_pressed = False  # Reset the button state
+
+            # Display the frame with traced QR codes
+            cv2.imshow("Traced QR Code", frame)
+
+            # Break the loop if 'q' key is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        # Release the webcam and close the window (in case 'q' is pressed)
+        cap.release()
+        cv2.destroyAllWindows()
+    # Call the function to start webcam QR code scanning
+    decoded_objects=trace_qr_code()
+
     # Check if any QR codes were found
-    def process_attendance(decoded_objects, current_date, current_time):
-        if decoded_objects:
-            data = decoded_objects[0].data.decode("utf-8").split(',')
+    def process_attendance(data_1, current_date, current_time):
+        if data_1:
+            data = data_1.split(',')
             compare_number = data[2]
-
             # Check deactivation
             if not deactivated(compare_number):
                 # Check attendance
@@ -287,6 +345,7 @@ def entry():
                 showinfo(title='Information', message=msg)
                 back()
         else:
+            print("No qr code detected!")
             back()
 
     def deactivated(compare_number):
@@ -312,6 +371,7 @@ def entry():
                f'Emp. Id : \t{data[3]} \n Date : \t\t{current_date} \n In-Time : \t{current_time}')
         showinfo(title='Information', message=msg)
         back()
+
 
     process_attendance(decoded_objects, current_date, current_time)
 #----------------------Entry button function ends------------------#
@@ -427,27 +487,27 @@ l7 = StringVar()
 def back():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
-    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-    register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="disabled").place(x=180, y=250)
-    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
+    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=380, y=80)
+    #register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="disabled").place(x=180, y=250)
+    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=200)
 
 # Back button function without log out
 def back_1():
     frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
     inphase_lable = Label(frame_1, image=inphase_logo, bg="White").place(x=100, y=20)
-    Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
+    #Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
     register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE, state="normal").place(x=180, y=250)
-    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
-    logout_btn = Button(frame_1, text="Logout", command=logout, bg="White", relief=RIDGE).place(x=180, y=350)
-    de_user = Button(frame_1, text="User Access", command=remo, bg="white", relief=RIDGE).place(x=180, y=400)
+    entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=200)
+    logout_btn = Button(frame_1, text="Logout", command=logout, bg="White", relief=RIDGE).place(x=180, y=250)
+    de_user = Button(frame_1, text="User Access", command=remo, bg="white", relief=RIDGE).place(x=180, y=3300)
 base2=open(r"message.txt")
 read_2=base2.read()
 a2=read_2.split(',')
 
 # creating buttons
-Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=180, y=200)
-register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="disabled").place(x=180, y=250)
-entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=300)
+Admin_btn = Button(frame_1, text="Admin", command=admin_log, bg="White", relief=RIDGE).place(x=380, y=80)
+#register_btn = Button(frame_1, text="Register", command=new_register, bg="White", relief=RIDGE,state="disabled").place(x=180, y=250)
+entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDGE).place(x=180, y=200)
 # CLosed the window loop
 root.mainloop()
 
