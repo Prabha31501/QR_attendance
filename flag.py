@@ -40,7 +40,7 @@ import os
 #-----------------------Creating the window---------------------------#
 ctk.set_appearance_mode("dark")
 # Selecting color theme - blue, green, dark-blue
-ctk.set_default_color_theme("blue")
+ctk.set_default_color_theme("green")
 root = ctk.CTk()
 root.title("Inphase Power Technologies")
 root.geometry("450x560")
@@ -74,9 +74,9 @@ current_date = now.strftime("%Y-%m-%d")
 
 #------------------Admin login button functions starts------------------#
 def admin_log():
-    #global pass_frame
-    pass_frame = ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
-    pass_frame_2 = ctk.CTkFrame(pass_frame, width=450, height=560).place(x=0, y=0)
+
+    #pass_frame = ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
+    pass_frame_2 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     admin_label = ctk.CTkLabel(pass_frame_2, image=image, text="").place(x=100,y=10)
     wecome = ctk.CTkLabel(pass_frame_2, text="Admin login").place(x=150, y=180)
     user_label= ctk.CTkLabel(pass_frame_2, text="Enter the user name").place(x=37,y=220)
@@ -117,8 +117,9 @@ def enter():
 
 #-----------------------------------New register button function starts----------------------#
 def new_register():
-    reg_frame= ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
-    reg_frame_2 = ctk.CTkFrame(reg_frame, width=450, height=560).place(x=0, y=0)
+
+    #reg_frame= ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
+    reg_frame_2 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     in_lab= ctk.CTkLabel(reg_frame_2, image=image, text="").place(x=100, y=20)
     nr_lab= ctk.CTkLabel(reg_frame_2, text="New Register").place(x=150, y=180)
 
@@ -129,12 +130,12 @@ def new_register():
     empid_lab = ctk.CTkLabel(reg_frame_2, text="Enter the Emp.Id").place(x=37,y=340)
 
     #user input entry to collect the datas
-    name_entry = ctk.CTkEntry(reg_frame_2, textvariable=l3).place(x=200, y=221)
-    email_entry = ctk.CTkEntry(reg_frame_2, textvariable=l4).place(x=200, y=261)
-    number_entry = ctk.CTkEntry(reg_frame_2, textvariable=l5).place(x=200, y=301)
-    empid_entry = ctk.CTkEntry(reg_frame_2, textvariable=l6).place(x=200, y=341)
+    name_entry = ctk.CTkEntry(reg_frame_2, textvariable=l3, placeholder_text="Enter name").place(x=200, y=221)
+    email_entry = ctk.CTkEntry(reg_frame_2, textvariable=l4, placeholder_text="Enter email").place(x=200, y=261)
+    number_entry = ctk.CTkEntry(reg_frame_2, textvariable=l5,  placeholder_text="Enter number").place(x=200, y=301)
+    empid_entry = ctk.CTkEntry(reg_frame_2, textvariable=l6,  placeholder_text="Enter Emp.Id").place(x=200, y=341)
 
-    create_btn= ctk.CTkButton(reg_frame_2, text="Create", command=create).place(x=240, y=381)
+    create_btn= ctk.CTkButton(reg_frame_2, text="Create", command=create).place(x=100, y=381)
     back_btn = ctk.CTkButton(reg_frame_2, text="Back", command=back_1).place(x=290, y=381)
 #---------------------------------New register button function ends----------------------#
 
@@ -168,9 +169,11 @@ def create():
 
     # Set up PDF document
     file_path_pdf = text + ".pdf"
+    #file_path_pdf_2 = text + "_2.pdf"
+    #file_path_pdf_3 = text + "_3.pdf"
     doc = SimpleDocTemplate(file_path_pdf, pagesize=A4)
-    doc = SimpleDocTemplate(file_path_pdf, pagesize=landscape(A4))
-    doc = SimpleDocTemplate(file_path_pdf, pagesize=A4)
+    #doc_2 = SimpleDocTemplate(file_path_pdf_2, pagesize=landscape(A4))
+    #doc_3 = SimpleDocTemplate(file_path_pdf_3, pagesize=A4)
 
     # Build the PDF document
     elements = []
@@ -259,7 +262,7 @@ def create():
     s.quit()
     #msg = f'QR code Sent Successfull to Registered Email \n Check the inbox {text2}'
     #showinfo(title='Information', message=msg)
-    ctk.CTkLabel(text="QR code generated and send through email", font=('Timesnewroman', 14, 'bold')).place(x=10,y=450)
+    ctk.CTkLabel(root, text="QR code generated and send through email").place(x=10,y=450)
     l3.set("")
     l4.set("")
     l5.set("")
@@ -270,7 +273,8 @@ def create():
 
 #----------------------------User entry button function starts------------------#
 def entry():
-    entry_frame = Frame(frame_1, width=450, height=560)
+
+    entry_frame = ctk.CTkFrame(frame_1, width=450, height=560)
     entry_frame.place(x=0, y=0)
     label = ctk.CTkLabel(entry_frame, text="Press 'Snap' to capture a snapshot.")
     label.pack()
@@ -410,12 +414,12 @@ def remo():
     global remo_frame_2
     remo_frame = ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
     remo_frame_2 = ctk.CTkFrame(remo_frame, width=450, height=560).place(x=0, y=0)
-    inphase_lable = ctk.CTkLabel(remo_frame_2, image=inphase_logo).place(x=100, y=20)
-    lab_1= ctk.CTkLabel(remo_frame_2, text="ID Activation / Deactivation", font=('Timesnewroman', 14, 'bold')).place(x=50, y=150)
-    lab_2= ctk.CTkLabel(remo_frame_2, text="Enter the Number", font=('Timesnewroman',10,'bold')).place(x=10, y=220)
-    ent_1= ctk.CTkEntry(remo_frame_2, text="Number", textvariable=l7, font=('Timesnewroman',10,'bold')).place(x=170, y=221)
-    ser_btn= ctk.CTkButton(remo_frame_2, text="Search", command=search, font=('Timesnewroman', 10 ,'bold')).place(x=170,y=270)
-    ba_btn= ctk.CTkButton(remo_frame_2, text="Back", command=back_1, font=('Timesnewroman', 10 ,'bold')).place(x=240,y=270)
+    inphase_lable = ctk.CTkLabel(remo_frame_2, image=image, text="").place(x=100, y=20)
+    lab_1= ctk.CTkLabel(remo_frame_2, text="ID Activation / Deactivation").place(x=150, y=200)
+    lab_2= ctk.CTkLabel(remo_frame_2, text="Enter the Number").place(x=10, y=250)
+    ent_1= ctk.CTkEntry(remo_frame_2, textvariable=l7, placeholder_text="Enter the mobile number....").place(x=170, y=251)
+    ser_btn= ctk.CTkButton(remo_frame_2, text="Search", command=search).place(x=75,y=300)
+    ba_btn= ctk.CTkButton(remo_frame_2, text="Back", command=back_1).place(x=250,y=300)
 #------------------------------User access button function ends--------------------------#
 
 #------------------------------------Search button function starts-----------------#
@@ -427,10 +431,10 @@ def search():
     row_values = wks2.row_values(row_index)
     l7.set("")
     # Display the row values in the result_label
-    res_lab = ctk.CTkLabel(remo_frame_2, text=str(row_values[0]) + " " + str(row_values[1]) + " " + str(row_values[2]) + " " + str(row_values[3])).place(x=0, y=340)
+    res_lab = ctk.CTkLabel(remo_frame_2, text=str(row_values[0]) + " " + str(row_values[1]) + " " + str(row_values[2]) + " " + str(row_values[3])).place(x=30, y=340)
     # Use lambda to pass arguments to deactivate
-    deav_btn = ctk.CTkButton(remo_frame_2, text="Deactivate", command=lambda: deactivate(row_values)).place(x=160, y=380)
-    av_btn = ctk.CTkButton(remo_frame_2, text="Activate", command=lambda: activate(row_values,ch_num)).place(x=300, y=380)
+    deav_btn = ctk.CTkButton(remo_frame_2, text="Deactivate", command=lambda: deactivate(row_values)).place(x=75, y=380)
+    av_btn = ctk.CTkButton(remo_frame_2, text="Activate", command=lambda: activate(row_values,ch_num)).place(x=200, y=380)
     return ch_num
 
 # -------------------------------Activate button function starts------------------------------#
@@ -488,28 +492,28 @@ l7 = tk.StringVar()
 # Back button function with logout
 def back():
     frame_1 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
-    inphase_lable = ctk.CTkLabel(frame_1, image=inphase_logo).place(x=100, y=20)
-    Admin_btn = ctk.CTkButton(frame_1, text="Admin", command=admin_log).place(x=380, y=80)
+    inphase_lable = ctk.CTkLabel(frame_1, image=image, text="").place(x=100, y=20)
+    Admin_btn = ctk.CTkButton(frame_1, text="Admin", command=admin_log).place(x=300, y=170)
     #register_btn = ctk.CTkButton(frame_1, text="Register", command=new_register, state="disabled").place(x=180, y=250)
-    entry_btn =ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=200)
+    entry_btn =ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=220)
 
 # Back button function without log out
 def back_1():
     frame_1 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
-    inphase_lable = ctk.CTkLabel(frame_1, image=inphase_logo).place(x=100, y=20)
+    inphase_lable = ctk.CTkLabel(frame_1, image=image, text="").place(x=100, y=20)
     #Admin_btn = Button(frame_1, text="Admin", command=admin_log).place(x=180, y=200)
     register_btn = ctk.CTkButton(frame_1, text="Register", command=new_register, state="normal").place(x=180, y=250)
-    entry_btn = ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=200)
-    logout_btn = ctk.CTkButton(frame_1, text="Logout", command=logout).place(x=180, y=250)
-    de_user = ctk.CTkButton(frame_1, text="User Access", command=remo).place(x=180, y=3300)
+    entry_btn = ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=300)
+    logout_btn = ctk.CTkButton(frame_1, text="Logout", command=logout).place(x=180, y=350)
+    de_user = ctk.CTkButton(frame_1, text="User Access", command=remo).place(x=180, y=400)
 base2=open(r"message.txt")
 read_2=base2.read()
 a2=read_2.split(',')
 
 # creating buttons
-Admin_btn = ctk.CTkButton(frame_1, text="Admin", command=admin_log).place(x=300, y=160)
+Admin_btn = ctk.CTkButton(frame_1, text="Admin", command=admin_log).place(x=300, y=170)
 #register_btn = Button(frame_1, text="Register", command=new_register,state="disabled").place(x=180, y=250)
-entry_btn = ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=200)
+entry_btn = ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=220)
 # CLosed the window loop
 root.mainloop()
 
