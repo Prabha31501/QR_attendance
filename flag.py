@@ -36,6 +36,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 import re
 import PySimpleGUI as sg
 import os
+from threading import Timer
 
 #-----------------------Creating the window---------------------------#
 ctk.set_appearance_mode("dark")
@@ -95,6 +96,12 @@ def enter():
     pass_1=l2.get()
     l.set("")
     l2.set("")
+    if user_1=="" and pass_1=="":
+        msg = f'Login failed! \n Enter the valid user name and password'
+        tkmb.showinfo(title='Information', message=msg)
+        admin_log()
+        return
+    
     rows_1 = wks3.get_all_values()
     cell = wks3.find(user_1)
     row_index = cell.row
@@ -110,6 +117,7 @@ def enter():
         entry_btn = ctk.CTkButton(frame_1, text="Entry", command=entry).place(x=180, y=300)
         logout_btn= ctk.CTkButton(frame_1, text="Logout", command=logout).place(x=180, y=350)
         de_user= ctk.CTkButton(frame_1, text="User Access", command=remo).place(x=180, y=400)
+
     else:
         msg = f'Login failed! \n Enter the valid user name and password'
         tkmb.showinfo(title='Information', message=msg)
@@ -276,8 +284,12 @@ def entry():
 
     entry_frame = ctk.CTkFrame(frame_1, width=450, height=560)
     entry_frame.place(x=0, y=0)
-    label = ctk.CTkLabel(entry_frame, text="Press 'Snap' to capture a snapshot.")
-    label.pack()
+    label = ctk.CTkLabel(entry_frame, text="Please wait camera function is processing!", font=('Bold', 20))
+    label.place(x=20, y=200)
+    t = Timer(0.5, entry_1)
+    t.start()
+def entry_1():
+    global entry_frame
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_date = now.strftime("%Y-%m-%d")

@@ -36,14 +36,15 @@ from tkinter import PhotoImage
 from reportlab.lib.styles import getSampleStyleSheet
 import re
 import PySimpleGUI as sg
+#-----Timer
+from threading import Timer
 
 #-----------------------Creating the window---------------------------#
 root = Tk()
 root.title("Inphase Power Technologies")
 root.geometry("450x560")
 root.resizable(False,False)
-frame_1 = Frame(root, width=450, height=560, bg="white")
-frame_1.place(x=0, y=0)
+frame_1 = Frame(root, width=450, height=560, bg="white").place(x=0, y=0)
 icon = Image.open('pk.ico')
 photo = ImageTk.PhotoImage(icon)
 
@@ -73,10 +74,8 @@ current_date = now.strftime("%Y-%m-%d")
 
 #------------------Admin login button functions starts------------------#
 def admin_log():
-    global pass_frame
-    pass_frame = Frame(frame_1, width=450, height=560, bg="white").place(x=0, y=0)
-    pass_frame_2 = Frame(pass_frame, width=450, height=560, bg="white").place(x=0, y=0)
-    admin_label = Label(pass_frame_2, image=inphase_logo, text="bg", bg="White").place(x=100, y=20)
+    pass_frame_2 = Frame(frame_1, width=450, height=560, bg="green").place(x=0, y=0)
+    admin_label = Label(pass_frame_2, image=inphase_logo, text="bg", bg="green").place(x=100, y=20)
     wecome = Label(pass_frame_2, text="Admin login", bg="white",fg="red", font=('Timesnewroman', 16, "bold")).place(x=150, y=180)
     user_label= Label(pass_frame_2, text="Enter the user name", bg="white", font=('Timesnewroman', 10, "bold")).place(x=37,y=220)
     pass_label = Label(pass_frame_2, text="Enter the password  ",bg="white",font=('Timesnewroman', 10, "bold")).place(x=37, y=262)
@@ -242,10 +241,14 @@ def create():
 
 #----------------------------User entry button function starts------------------#
 def entry():
-    entry_frame = Frame(frame_1, width=450, height=560, bg="White")
-    entry_frame.place(x=0, y=0)
-    label = Label(entry_frame, text="Press 'Snap' to capture a snapshot.")
-    label.pack()
+    entry_frame_1 = Frame(frame_1, width=450, height=560, bg="").place(x=0, y=0)
+    print("Please wait!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    label = Label(frame_1, text="Please wait camera is processing!",fg="red", font=('Timesnewroman', 10, "bold"))
+    label.place(x=10, y=350)
+    t = Timer(.5, entry_1)
+    t.start()
+def entry_1():
+    #global entry_frame
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_date = now.strftime("%Y-%m-%d")
@@ -366,7 +369,7 @@ def entry():
 
     def add_attendance_entry(data, current_date, current_time, entry_type):
         wks1.append_row([data[0], data[1], data[2], data[3], current_date, current_time])
-        entry_out_label = Label(entry_frame, ).place(x=0, y=0)
+        #entry_out_label = Label(entry_frame, ).place(x=0, y=0)
         msg = (f'\t\tIntime Entry \n Name : \t\t{data[0]} \n Mobile Number : \t{data[1]} \n E-Mail Id : \t{data[2]} \n '
                f'Emp. Id : \t{data[3]} \n Date : \t\t{current_date} \n In-Time : \t{current_time}')
         showinfo(title='Information', message=msg)
@@ -424,8 +427,26 @@ def search():
     row_index = cell.row
     row_values = wks2.row_values(row_index)
     l7.set("")
-    # Display the row values in the result_label
-    res_lab = Label(remo_frame_2, text=str(row_values[0]) + " " + str(row_values[1]) + " " + str(row_values[2]) + " " + str(row_values[3]), bg="white").place(x=0, y=340)
+    elements=[]
+    data = [
+        ["Name", "Email Id", "Mobile No.", "Emp. Id"],
+        [f'{(row_values[0]) }',f'{(row_values[1]) }',f'{(row_values[2]) }',f'{(row_values[3])}']
+    ]
+    # Insert column headings
+    for col, heading in enumerate(data[0]):
+        label = Label(remo_frame_2, text=heading, padx=10, pady=5, borderwidth=1, relief="solid")
+        label.grid(row=0, column=col, sticky="nsew")
+
+    # Insert data rows
+    for row_idx, row_data in enumerate(data[1:]):
+        for col_idx, cell_value in enumerate(row_data):
+            label = Label(remo_frame_2, text=cell_value, padx=10, pady=5, borderwidth=1, relief="solid")
+            label.grid(row=row_idx + 1, column=col_idx, sticky="nsew")
+
+    # Configure row and column weights for resizing
+    # Move the table to a specific location within the window
+    remo_frame_2.place(x=100, y=300)
+
     # Use lambda to pass arguments to deactivate
     deav_btn = Button(remo_frame_2, text="Deactivate", bg="white", command=lambda: deactivate(row_values)).place(x=160, y=380)
     av_btn = Button(remo_frame_2, text="Activate", bg="white", command=lambda: activate(row_values,ch_num)).place(x=300, y=380)
@@ -511,4 +532,3 @@ entry_btn = Button(frame_1, text="Entry", command=entry, bg="White", relief=RIDG
 # CLosed the window loop
 root.mainloop()
 
-#demo for praba - 9-Jan-2024
