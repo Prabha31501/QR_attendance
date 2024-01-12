@@ -256,18 +256,11 @@ def entry_1():
     spreadsheet = gc.open("NSDC- Attendance")
     wks1 = spreadsheet.get_worksheet(0)
 
-    snapshot = None
-    snap_button_pressed = False
-
-    # import cv2
-    # import time
-    # from pyzbar.pyzbar import decode
-
-    snapshot = None
-    snap_button_pressed = False
+    # snapshot = None
+    # snap_button_pressed = False
 
     def trace_qr_code():
-        global snapshot, snap_button_pressed
+        global snapshot #, snap_button_pressed
         # Open the default camera (index 0)
         cap = cv2.VideoCapture(0)
 
@@ -284,7 +277,7 @@ def entry_1():
         canvas = Canvas(frame_1, width=canvas_width, height=canvas_height)
         canvas.pack()
 
-        snap_button_pressed = False  # Initialize snap_button_pressed
+        #snap_button_pressed = False  # Initialize snap_button_pressed
 
         while True:
             # Read a frame from the webcam
@@ -300,37 +293,13 @@ def entry_1():
                 # Center the image on the canvas
                 x_centered = (canvas_width - photo.width()) // 2
                 y_centered = (canvas_height - photo.height()) // 2
-
-                canvas.create_image(x_centered, y_centered, anchor=NW, image=photo)
-                canvas.photo = photo  # Keep a reference to prevent garbage collection
-
-                # Display the Snap button on the canvas
-                canvas.create_rectangle(20, 20, 70, 70, outline='white', fill='white')
-                canvas.create_text(45, 45, text="Snap", fill='black', font=('Helvetica', 10))
-
-                # Check for mouse events
-                canvas.bind("<Button-1>", on_mouse)
-
+                cv2.rectangle(frame, (500, 20), (600, 70), (255, 255, 255), -1)
+                snap_btn=Button(canvas, text="Snap", command=snap_button_pressed).place(x=225, y=500)
+            snap_button_pressed()
                 # Capture a snapshot if the Snap button is pressed
-                if snap_button_pressed:
-                    snapshot = frame.copy()
-                    # Decode QR codes in the snapshot
-                    qr_codes = decode(cv2.cvtColor(snapshot, cv2.COLOR_BGR2GRAY))
-                    # Iterate through detected QR codes
-                    for qr_code in qr_codes:
-                        rect = qr_code.rect
-                        # Extract the coordinates of the bounding box
-                        x, y, w, h = rect.left, rect.top, rect.width, rect.height
-                        # Draw the bounding box
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                        # Extract and print QR code data
-                        data_1 = qr_code.data.decode('utf-8')
-                        # Close the window after decoding the QR code
-                        cv2.destroyAllWindows()
-                        cap.release()
-                        return data_1  # Exit the function immediately
+                  # Exit the function immediately
 
-                    snap_button_pressed = False  # Reset the button state
+                    #snap_button_pressed = False  # Reset the button state
 
             # Break the loop if 'q' key is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -339,17 +308,28 @@ def entry_1():
         # Release the webcam and close the window (in case 'q' is pressed)
         cap.release()
         cv2.destroyAllWindows()
-
-    # Function to handle mouse click event
-    def on_mouse(event):
-        global snap_button_pressed
-        x, y = event.x, event.y
-        # Check if the click is within the Snap button region
-        if 20 <= x <= 70 and 20 <= y <= 70:
-            snap_button_pressed = not snap_button_pressed
-
     # Call the function to start webcam QR code scanning
     decoded_objects = trace_qr_code()
+
+    def snap_button_pressed():
+        global frame
+        global cap
+        snapshot = frame.copy()
+        # Decode QR codes in the snapshot
+        qr_codes = decode(cv2.cvtColor(snapshot, cv2.COLOR_BGR2GRAY))
+        # Iterate through detected QR codes
+        for qr_code in qr_codes:
+            rect = qr_code.rect
+            # Extract the coordinates of the bounding box
+            x, y, w, h = rect.left, rect.top, rect.width, rect.height
+            # Draw the bounding box
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # Extract and print QR code data
+            data_1 = qr_code.data.decode('utf-8')
+            # Close the window after decoding the QR code
+            cv2.destroyAllWindows()
+            cap.release()
+            return data_1
 
     # Check if any QR codes were found
     def process_attendance(data_1, current_date, current_time):
