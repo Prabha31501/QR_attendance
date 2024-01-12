@@ -427,6 +427,8 @@ def search():
     row_index = cell.row
     row_values = wks2.row_values(row_index)
     l7.set("")
+    remo_frame_3=Frame(remo_frame_2, width=450, height=50, bg="red")
+    remo_frame_3.place(x=20, y=320)
     elements=[]
     data = [
         ["Name", "Email Id", "Mobile No.", "Emp. Id"],
@@ -434,18 +436,18 @@ def search():
     ]
     # Insert column headings
     for col, heading in enumerate(data[0]):
-        label = Label(remo_frame_2, text=heading, padx=10, pady=5, borderwidth=1, relief="solid")
+        label = Label(remo_frame_3, text=heading, padx=10, pady=5, borderwidth=1, relief="solid")
         label.grid(row=0, column=col, sticky="nsew")
 
     # Insert data rows
     for row_idx, row_data in enumerate(data[1:]):
         for col_idx, cell_value in enumerate(row_data):
-            label = Label(remo_frame_2, text=cell_value, padx=10, pady=5, borderwidth=1, relief="solid")
+            label = Label(remo_frame_3, text=cell_value, padx=10, pady=5, borderwidth=1, relief="solid")
             label.grid(row=row_idx + 1, column=col_idx, sticky="nsew")
 
     # Configure row and column weights for resizing
     # Move the table to a specific location within the window
-    remo_frame_2.place(x=100, y=300)
+    #remo_frame_3.place(x=100, y=300)
 
     # Use lambda to pass arguments to deactivate
     deav_btn = Button(remo_frame_2, text="Deactivate", bg="white", command=lambda: deactivate(row_values)).place(x=160, y=380)

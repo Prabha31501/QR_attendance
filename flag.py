@@ -39,6 +39,16 @@ import os
 from threading import Timer
 
 #-----------------------Creating the window---------------------------#
+#----------------------Creating the theme------------------#
+def theme_1():
+    ctk.set_appearance_mode("dark")
+    # Selecting color theme - blue, green, dark-blue
+    ctk.set_default_color_theme("green")
+    # Impoting the  image of inphase
+    inphase_logo = os.path.join(os.path.dirname(__file__), 'test.png')
+    image = ctk.CTkImage(light_image=Image.open(inphase_logo), size=(280, 140))
+    image_lable = ctk.CTkLabel(frame_1, image=image, text="").place(x=100, y=10)
+
 ctk.set_appearance_mode("dark")
 # Selecting color theme - blue, green, dark-blue
 ctk.set_default_color_theme("green")
@@ -75,7 +85,7 @@ current_date = now.strftime("%Y-%m-%d")
 
 #------------------Admin login button functions starts------------------#
 def admin_log():
-
+    theme_1()
     #pass_frame = ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
     pass_frame_2 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     admin_label = ctk.CTkLabel(pass_frame_2, image=image, text="").place(x=100,y=10)
@@ -125,7 +135,7 @@ def enter():
 
 #-----------------------------------New register button function starts----------------------#
 def new_register():
-
+    theme_1()
     #reg_frame= ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
     reg_frame_2 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     in_lab= ctk.CTkLabel(reg_frame_2, image=image, text="").place(x=100, y=20)
@@ -423,6 +433,7 @@ def entry_1():
 
 #------------------------------User access button function starts--------------------------#
 def remo():
+    theme_1()
     global remo_frame_2
     remo_frame = ctk.CTkFrame(frame_1, width=450, height=560).place(x=0, y=0)
     remo_frame_2 = ctk.CTkFrame(remo_frame, width=450, height=560).place(x=0, y=0)
@@ -443,10 +454,27 @@ def search():
     row_values = wks2.row_values(row_index)
     l7.set("")
     # Display the row values in the result_label
-    res_lab = ctk.CTkLabel(remo_frame_2, text=str(row_values[0]) + " " + str(row_values[1]) + " " + str(row_values[2]) + " " + str(row_values[3])).place(x=30, y=340)
+    remo_frame_3 = tk.Frame(remo_frame_2,bg="red", width=450, height=50)
+    remo_frame_3.place(x=100, y=520)
+    elements = []
+    data = [
+        ["Name", "Email Id", "Mobile No.", "Emp. Id"],
+        [f'{(row_values[0])}', f'{(row_values[1])}', f'{(row_values[2])}', f'{(row_values[3])}']
+    ]
+    # Insert column headings
+    for col, heading in enumerate(data[0]):
+        label = tk.Label(remo_frame_3, text=heading, padx=10, pady=5, borderwidth=1, relief="solid")
+        label.grid(row=0, column=col, sticky="nsew")
+
+    # Insert data rows
+    for row_idx, row_data in enumerate(data[1:]):
+        for col_idx, cell_value in enumerate(row_data):
+            label = tk.Label(remo_frame_3, text=cell_value, padx=10, pady=5, borderwidth=1, relief="solid")
+            label.grid(row=row_idx + 1, column=col_idx, sticky="nsew")
+
     # Use lambda to pass arguments to deactivate
-    deav_btn = ctk.CTkButton(remo_frame_2, text="Deactivate", command=lambda: deactivate(row_values)).place(x=75, y=380)
-    av_btn = ctk.CTkButton(remo_frame_2, text="Activate", command=lambda: activate(row_values,ch_num)).place(x=200, y=380)
+    deav_btn = ctk.CTkButton(remo_frame_2, text="Deactivate", command=lambda: deactivate(row_values)).place(x=50, y=420)
+    av_btn = ctk.CTkButton(remo_frame_2, text="Activate", command=lambda: activate(row_values,ch_num)).place(x=240, y=420)
     return ch_num
 
 # -------------------------------Activate button function starts------------------------------#
@@ -503,6 +531,7 @@ l7 = tk.StringVar()
 
 # Back button function with logout
 def back():
+    theme_1()
     frame_1 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     inphase_lable = ctk.CTkLabel(frame_1, image=image, text="").place(x=100, y=20)
     Admin_btn = ctk.CTkButton(frame_1, text="Admin", command=admin_log).place(x=300, y=170)
@@ -511,6 +540,7 @@ def back():
 
 # Back button function without log out
 def back_1():
+    theme_1()
     frame_1 = ctk.CTkFrame(root, width=450, height=560).place(x=0, y=0)
     inphase_lable = ctk.CTkLabel(frame_1, image=image, text="").place(x=100, y=20)
     #Admin_btn = Button(frame_1, text="Admin", command=admin_log).place(x=180, y=200)
